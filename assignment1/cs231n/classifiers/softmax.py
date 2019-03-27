@@ -29,7 +29,30 @@ def softmax_loss_naive(W, X, y, reg):
   # here, it is easy to run into numeric instability. Don't forget the        #
   # regularization!                                                           #
   #############################################################################
-  pass
+  num_classes = W.shape[1]
+  num_train = X.shape[0]
+
+  for i in range(num_train):
+      # loss
+      scores = X[i].dot(W)
+      # shift values for 'scores' for numeric reasons (over-flow cautions)
+      scores -= scores.max()
+      scores_expsum = np.sum(np.exp(scores))
+      cor_ex = np.exp(scores[y[i]])
+      loss += -np.log(cor_ex / scores_expsum)
+
+      # gradient
+      dW[:, y[i]] += (-1) * (scores_expsum - cor_ex) / scores_expsum * X[i]
+      for j in range(num_classes):
+          # pass correct class gradient
+          if j == y[i]: continue
+          dW[:, j] += np.exp(scores[j]) / scores_expsum * X[i]
+
+  loss /= num_train
+  loss += reg * np.sum(W * W)
+  dW /= num_train
+  dW += 2 * reg * W
+
   #############################################################################
   #                          END OF YOUR CODE                                 #
   #############################################################################
@@ -46,6 +69,8 @@ def softmax_loss_vectorized(W, X, y, reg):
   # Initialize the loss and gradient to zero.
   loss = 0.0
   dW = np.zeros_like(W)
+  num_classes = W.shape[1]
+  num_train = X.shape[0]
 
   #############################################################################
   # TODO: Compute the softmax loss and its gradient using no explicit loops.  #
@@ -53,10 +78,24 @@ def softmax_loss_vectorized(W, X, y, reg):
   # here, it is easy to run into numeric instability. Don't forget the        #
   # regularization!                                                           #
   #############################################################################
-  pass
+  # loss
+  # score: N by C matrix containing class scores
+  scores = X.dot(W)
+  scores -= scores.max()
+  scores = np.exp(scores)
+  scores_sums = np.sum(scores, axis=1)
+  cors = scores[range(num_train), y]
+  loss = cors / scores_sums
+  loss = -np.sum(np.log(loss))/num_train + reg * np.sum(W * W)
+
+  # grad
+  s = np.divide(scores, scores_sums.reshape(num_train, 1))
+  s[range(num_train), y] = - (scores_sums - cors) / scores_sums
+  dW = X.T.dot(s)
+  dW /= num_train
+  dW += 2 * reg * W
   #############################################################################
   #                          END OF YOUR CODE                                 #
   #############################################################################
 
   return loss, dW
-
