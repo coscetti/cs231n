@@ -134,8 +134,8 @@ best_softmax = None
 # learning_rates = [1e-08, 1e-7, 5e-7, 1e-6]
 # regularization_strengths = [5e2, 1e3, 1e4, 2.5e4, 5e4]
 
-learning_rates = [1e-08, 1e-7, 5e-7, 1e-6]
-regularization_strengths = [5e2, 1e3, 1e4, 2.5e4, 5e4]
+learning_rates = [1e-08, 1e-7, 1e-6]
+regularization_strengths = [1e3, 5e4]
 
 ################################################################################
 # TODO:                                                                        #
@@ -147,7 +147,7 @@ softmax = Softmax()
 
 for lr in learning_rates:
     for reg in regularization_strengths:
-        loss_hist = softmax.train(X_train, y_train, learning_rate=lr, reg=reg, num_iters=1500)
+        softmax.train(X_train, y_train, learning_rate=lr, reg=reg, num_iters=100)
 
         y_train_pred = softmax.predict(X_train)
         acc_train = np.mean(y_train == y_train_pred)
@@ -162,6 +162,35 @@ for lr in learning_rates:
         if acc_val > best_val:
             best_val = acc_val
             best_softmax = softmax
+            best_lr = lr
+            best_reg = reg
+
+
+# grid_search=[(x,y) for x in learning_rates for y in regularization_strengths]
+# for alpha, reg in grid_search:
+#     softmax=Softmax()
+#     softmax.train(X_train, y_train, learning_rate=alpha, reg=reg, num_iters=100)
+#     y_train_pred=softmax.predict(X_train)
+#     y_val_pred=softmax.predict(X_val)
+#     training_accuracy=np.mean(y_train_pred==y_train)
+#     validation_accuracy=np.mean(y_val_pred==y_val)
+#
+#     results[alpha, reg] = (training_accuracy, validation_accuracy)
+#
+#     if validation_accuracy > best_val:
+#         best_val=validation_accuracy
+#         best_softmax=softmax
+#         best_lr = alpha
+#         best_reg = reg
+
+# # on retrain le model avec plus d'iteration
+# softmax = Softmax()
+# lr = best_lr
+# reg = best_reg
+# softmax.train(X_train,y_train, learning_rate = lr, reg =  reg,
+#               num_iters = 1500, batch_size = 200,verbose = True)
+# best_val = np.mean(softmax.predict(X_val) == y_val)
+# best_softmax = softmax
 ################################################################################
 #                              END OF YOUR CODE                                #
 ################################################################################
