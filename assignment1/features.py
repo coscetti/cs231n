@@ -4,6 +4,7 @@ import random
 import numpy as np
 from cs231n.data_utils import load_CIFAR10
 import matplotlib.pyplot as plt
+import time
 
 from cs231n.features import color_histogram_hsv, hog_feature
 
@@ -127,18 +128,20 @@ print(test_accuracy)
 # shows images that our system labeled as "plane" but whose true label is
 # something other than "plane".
 
-examples_per_class = 8
-classes = ['plane', 'car', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship', 'truck']
-for cls, cls_name in enumerate(classes):
-    idxs = np.where((y_test != cls) & (y_test_pred == cls))[0]
-    idxs = np.random.choice(idxs, examples_per_class, replace=False)
-    for i, idx in enumerate(idxs):
-        plt.subplot(examples_per_class, len(classes), i * len(classes) + cls + 1)
-        plt.imshow(X_test[idx].astype('uint8'))
-        plt.axis('off')
-        if i == 0:
-            plt.title(cls_name)
-plt.show()
+# examples_per_class = 8
+# classes = ['plane', 'car', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship', 'truck']
+# fig = plt.figure()
+# for cls, cls_name in enumerate(classes):
+#     idxs = np.where((y_test != cls) & (y_test_pred == cls))[0]
+#     idxs = np.random.choice(idxs, examples_per_class, replace=False)
+#     for i, idx in enumerate(idxs):
+#         plt.subplot(examples_per_class, len(classes), i * len(classes) + cls + 1)
+#         plt.imshow(X_test[idx].astype('uint8'))
+#         plt.axis('off')
+#         if i == 0:
+#             plt.title(cls_name)
+# # plt.show()
+# fig.savefig('misclassified.png', transparent=True)
 
 # NEURAL NETWORK ON IMAGE FEATURES
 
@@ -165,13 +168,25 @@ best_net = None
 # cross-validate various parameters as in previous sections. Store your best   #
 # model in the best_net variable.                                              #
 ################################################################################
+# hidden_size = [20, 50, 100, 200, 500]
+# learning_rate = [1e-6, 1e-5, 1e-4, 5e-4, 1e-3, 5e-3, 1e-2, 1e-1, 1]
+# reg = [1e-3, 1e-2, 0.1, 0.2, 0.4, 0.6, 0.8]
+# best 500, 1, 1e-3
+# hidden_size = [500, 600, 700, 800, 1000]
 
-hidden_size = [500]
-learning_rate = [1]
-reg = [1e-4]
+# learning_rate = [1, 0.5, 0.8 , 2]
+# reg = [1e-3, 5e-3, 1e-4, 5e-4, 1e-5]
+# best 600, 0.8, 1e-4
+
+hidden_size = [500, 600]
+learning_rate = [1, 0.8]
+reg = [1e-3, 5e-3, 1e-4]
 best_acc = -1
 log = {}
-
+best_hs = 0
+best_lr = 0
+best_r = 0
+tic = time.time()
 for hs in hidden_size:
     for lr in learning_rate:
         for r in reg:
@@ -190,17 +205,22 @@ for hs in hidden_size:
 
             # Print Log
             print('for hs: %e, lr: %e and r: %e, valid accuracy is: %f'
-            % (hs, lr, r, acc))
+                % (hs, lr, r, acc))
 
             if acc > best_acc:
                 best_net = net
                 best_acc = acc
+                best_hs = hs
+                best_lr = lr
+                best_r = r
 
-print('Best Networks has an Accuracy of: %f' % best_acc)
+print('Best Networks has an Accuracy of: %f. (hs: %e, lr: %e, r: %e)'
+    % (best_acc, best_hs, best_lr, best_r))
 ################################################################################
 #                              END OF YOUR CODE                                #
 ################################################################################
-
+toc = time.time()
+print('elapsed time: %f sec' %(toc-tic))
 # Run your best neural net classifier on the test set. You should be able
 # to get more than 55% accuracy.
 
