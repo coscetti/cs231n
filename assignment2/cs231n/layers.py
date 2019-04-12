@@ -428,7 +428,9 @@ def conv_forward_naive(x, w, b, conv_param):
         for f in range(F):
             for j in range(0, H_prime):
                 for i in range(0, W_prime):
-                    out[n, f, j, i] = (x_pad[n, :, j*stride:j*stride+HH, i*stride:i*stride+WW] * w[f, :, :, :]).sum() + b[f]
+                    out[n, f, j, i] = \
+                        (x_pad[n, :, j*stride:j*stride+HH, i*stride:i*stride+WW] \
+                         * w[f, :, :, :]).sum() + b[f]
 
     ###########################################################################
     #                             END OF YOUR CODE                            #
